@@ -44,6 +44,19 @@
         .action-buttons button:hover {
             transform: scale(1.1);
         }
+        #notification {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 105, 180, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 24px;
+            display: none;
+            z-index: 200;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +75,8 @@
             <button id="femboyBtn">Deploy Kawaii Attack</button>
         </div>
     </div>
+
+    <div id="notification">✨ Super Kawaii Attack Deployed! ✨</div>
 
     <script type="module">
         import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js';
@@ -190,7 +205,7 @@
             const blockGeometry = new THREE.BoxGeometry(1, 1, 1);
             const blockMaterial = new THREE.MeshStandardMaterial({ 
                 color: Math.random() > 0.5 ? 0x8B4513 : 0x228B22,
-                roughness: 0.8
+                roughness: 0.9
             });
             const minecraftBlock = new THREE.Mesh(blockGeometry, blockMaterial);
             minecraftBlock.position.set(
@@ -203,116 +218,83 @@
             minecraftEnvironment.add(minecraftBlock);
         }
         
-        // Stats
-        let stats = {
-            coding: 100,
-            minecraft: '∞',
-            femboy: 9001
-        };
+        // Create Femboy environment objects
+        const femboyEnvironment = new THREE.Group();
+        scene.add(femboyEnvironment);
         
-        function updateStats() {
-            document.getElementById('coding').textContent = stats.coding;
-            document.getElementById('minecraft').textContent = `${stats.minecraft}/10`;
-            document.getElementById('femboy').textContent = stats.femboy;
-        }
-        
-        // Random events
-        function randomEvent() {
-            const events = [
-                "Emir spontaneously writes a TypeScript compiler in Excel!",
-                "A wild Turkish coffee appears! Coding speed +50%",
-                "Minecraft sheep demand better building permits!",
-                "Femboy energy converted to React components!",
-                "Error 418: I'm a teapot (Turkish edition)"
-            ];
-            alert(events[Math.floor(Math.random() * events.length)]);
-        }
-        
-        // Action functions
-        function codeChallenge() {
-            // Activate code particles
-            codeParticles.children.forEach(p => {
-                p.userData.velocity.y *= 2;
+        // Add some kawaii objects
+        for (let i = 0; i < 7; i++) {
+            const heartGeometry = new THREE.TorusGeometry(0.3, 0.1, 16, 100);
+            const heartMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xff69b4,
+                emissive: 0xff1493,
+                emissiveIntensity: 0.5
             });
-            
-            // Move camera to focus on code environment
-            new THREE.Vector3(0, 3, 5);
-            
-            // Update stats
-            stats.coding = Math.min(stats.coding + Math.random() * 10, 200);
-            stats.minecraft = '∞';
-            stats.femboy -= Math.random() * 100;
-            updateStats();
-            randomEvent();
-            
-            // Make Emir character do a coding animation
-            emirCharacter.rotation.y = 0;
-            const codingAnimation = setInterval(() => {
-                emirCharacter.rotation.y += 0.1;
-            }, 50);
-            setTimeout(() => clearInterval(codingAnimation), 2000);
+            const heart = new THREE.Mesh(heartGeometry, heartMaterial);
+            heart.position.set(
+                (Math.random() - 0.5) * 8,
+                0.5 + Math.random() * 2,
+                (Math.random() - 0.5) * 8
+            );
+            heart.rotation.x = Math.PI / 2;
+            heart.castShadow = true;
+            femboyEnvironment.add(heart);
         }
         
-        function minecraftBuild() {
-            // Activate minecraft particles
-            minecraftParticles.children.forEach(p => {
-                p.userData.velocity.x *= 1.5;
-                p.userData.velocity.z *= 1.5;
-            });
-            
-            // Update stats
-            stats.minecraft = `${Math.floor(Math.random() * 100)}/10`;
-            stats.femboy += Math.random() * 500;
-            stats.coding -= Math.random() * 5;
-            updateStats();
-            randomEvent();
-            
-            // Make Emir character jump
-            const jumpAnimation = setInterval(() => {
-                emirCharacter.position.y = 1 + Math.sin(Date.now() * 0.005) * 0.5;
-            }, 50);
-            setTimeout(() => {
-                clearInterval(jumpAnimation);
-                emirCharacter.position.y = 1;
-            }, 2000);
-        }
+        // Hide environments initially
+        codeEnvironment.visible = false;
+        minecraftEnvironment.visible = false;
+        femboyEnvironment.visible = false;
         
-        function femboyPower() {
-            // Activate femboy particles
-            femboyParticles.children.forEach(p => {
-                p.userData.velocity.multiplyScalar(3);
-                p.material.color.setHex(0xff69b4);
-            });
-            
-            // Update stats
-            stats.femboy += Math.random() * 1000;
-            stats.coding = 100 + Math.random() * 50;
-            stats.minecraft = '♾️';
-            updateStats();
-            alert('Nyaa~! Femboy hyperdrive activated!');
-            
-            // Make Emir character spin
-            const spinAnimation = setInterval(() => {
-                emirCharacter.rotation.y += 0.2;
-                emirCharacter.rotation.x += 0.1;
-            }, 50);
-            setTimeout(() => {
-                clearInterval(spinAnimation);
-                emirCharacter.rotation.x = 0;
-            }, 2000);
-        }
-        
-        // Event listeners
-        document.getElementById('codeBtn').addEventListener('click', codeChallenge);
-        document.getElementById('minecraftBtn').addEventListener('click', minecraftBuild);
-        document.getElementById('femboyBtn').addEventListener('click', femboyPower);
-        
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        // Button event listeners
+        document.getElementById('codeBtn').addEventListener('click', () => {
+            codeEnvironment.visible = true;
+            minecraftEnvironment.visible = false;
+            femboyEnvironment.visible = false;
+            animateCodeParticles = true;
+            animateMinecraftParticles = false;
+            animateFemboyParticles = false;
+            showNotification('Solving LeetCode Hard Problems...');
         });
+        
+        document.getElementById('minecraftBtn').addEventListener('click', () => {
+            codeEnvironment.visible = false;
+            minecraftEnvironment.visible = true;
+            femboyEnvironment.visible = false;
+            animateCodeParticles = false;
+            animateMinecraftParticles = true;
+            animateFemboyParticles = false;
+            showNotification('Building Epic Minecraft Pixel Art...');
+        });
+        
+        document.getElementById('femboyBtn').addEventListener('click', () => {
+            codeEnvironment.visible = false;
+            minecraftEnvironment.visible = false;
+            femboyEnvironment.visible = true;
+            animateCodeParticles = false;
+            animateMinecraftParticles = false;
+            animateFemboyParticles = true;
+            showNotification('✨ Kawaii Attack Deployed! ✨');
+        });
+        
+        // Notification function
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+        
+        // Animation flags
+        let animateCodeParticles = false;
+        let animateMinecraftParticles = false;
+        let animateFemboyParticles = false;
+        
+        // Character animation
+        let jumpDirection = 1;
+        let jumpHeight = 0;
         
         // Animation loop
         function animate() {
@@ -321,47 +303,69 @@
             // Update controls
             controls.update();
             
-            // Rotate Emir character slightly
-            emirCharacter.rotation.y += 0.005;
+            // Animate character
+            jumpHeight += 0.01 * jumpDirection;
+            if (jumpHeight > 0.5) jumpDirection = -1;
+            if (jumpHeight < 0) jumpDirection = 1;
+            emirCharacter.position.y = 1 + jumpHeight;
+            emirCharacter.rotation.y += 0.01;
             
-            // Update particles
-            codeParticles.children.forEach(p => {
-                p.position.add(p.userData.velocity);
-                p.rotation.x += p.userData.spin;
-                p.rotation.y += p.userData.spin;
+            // Animate particles
+            if (animateCodeParticles) {
+                codeParticles.children.forEach(particle => {
+                    particle.position.add(particle.userData.velocity);
+                    particle.rotation.x += particle.userData.spin;
+                    particle.rotation.y += particle.userData.spin;
+                    
+                    if (particle.position.y > 5) {
+                        particle.position.y = 0;
+                    }
+                });
+            }
+            
+            if (animateMinecraftParticles) {
+                minecraftParticles.children.forEach(particle => {
+                    particle.position.add(particle.userData.velocity);
+                    particle.rotation.x += particle.userData.spin;
+                    particle.rotation.z += particle.userData.spin;
+                    
+                    if (particle.position.y > 5) {
+                        particle.position.y = 0;
+                    }
+                });
+            }
+            
+            if (animateFemboyParticles) {
+                femboyParticles.children.forEach(particle => {
+                    particle.position.add(particle.userData.velocity);
+                    particle.rotation.y += particle.userData.spin * 2;
+                    particle.rotation.z += particle.userData.spin * 2;
+                    
+                    if (particle.position.y > 5) {
+                        particle.position.y = 0;
+                    }
+                });
                 
-                // Reset particles that go too far
-                if (p.position.y > 5) p.position.y = 0;
-                if (Math.abs(p.position.x) > 10) p.position.x *= -0.9;
-                if (Math.abs(p.position.z) > 10) p.position.z *= -0.9;
-            });
+                // Animate femboy environment
+                femboyEnvironment.children.forEach(heart => {
+                    heart.rotation.z += 0.02;
+                    heart.position.y += Math.sin(Date.now() * 0.003) * 0.01;
+                });
+            }
             
-            minecraftParticles.children.forEach(p => {
-                p.position.add(p.userData.velocity);
-                
-                // Reset particles that go too far
-                if (p.position.y > 5) p.position.y = 0;
-                if (Math.abs(p.position.x) > 10) p.position.x *= -0.9;
-                if (Math.abs(p.position.z) > 10) p.position.z *= -0.9;
-            });
-            
-            femboyParticles.children.forEach(p => {
-                p.position.add(p.userData.velocity);
-                p.rotation.z += p.userData.spin * 2;
-                
-                // Reset particles that go too far
-                if (p.position.y > 5) p.position.y = 0;
-                if (Math.abs(p.position.x) > 10) p.position.x *= -0.9;
-                if (Math.abs(p.position.z) > 10) p.position.z *= -0.9;
-            });
-            
-            // Render the scene
+            // Render scene
             renderer.render(scene, camera);
         }
         
-        // Start animation
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Start animation loop
         animate();
-        updateStats();
     </script>
 </body>
 </html>
