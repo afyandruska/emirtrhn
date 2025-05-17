@@ -19,10 +19,15 @@
             max-width: 600px;
             background: white;
         }
-        img {
-            width: 200px;
-            border-radius: 50%;
-            border: 3px solid #333;
+        #threeCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        .overlay-ui {
+            position: relative;
+            z-index: 1;
         }
         .stats {
             margin: 20px;
@@ -46,7 +51,8 @@
     </style>
 </head>
 <body>
-    <div class="character">
+    <canvas id="threeCanvas"></canvas>
+    <div class="overlay-ui">
         <h1>✨ Emir Trahan Simulator 2024 ✨</h1>
         <img src="emir.png" alt="Emir Trahan">
         <div class="stats">
@@ -60,8 +66,58 @@
         <button onclick="femboyPower()">Deploy Kawaii Attack</button>
     </div>
 
-    <script>
-        let stats = {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+        // Three.js Setup
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#threeCanvas'), alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+// Window resize handler
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Emir Character Setup
+const emirTexture = new THREE.TextureLoader().load('emir.png');
+const emirMaterial = new THREE.SpriteMaterial({ map: emirTexture, transparent: true });
+const emirSprite = new THREE.Sprite(emirMaterial);
+emirSprite.scale.set(4, 4, 1);
+scene.add(emirSprite);
+
+// Particle Systems
+const codeParticles = createParticleSystem(0xff69b4);
+const minecraftParticles = createParticleSystem(0x99ccff);
+
+camera.position.z = 5;
+
+function animate() {
+    requestAnimationFrame(animate);
+    
+    // Dynamic light movement
+    pointLight.position.x = Math.sin(Date.now() * 0.001) * 5;
+    pointLight.position.y = Math.cos(Date.now() * 0.001) * 5;
+    
+    // Particle animations
+    codeParticles.children.forEach(p => {
+        p.position.y += 0.02;
+        if(p.position.y > 10) p.position.y = -10;
+    });
+
+    minecraftParticles.children.forEach(p => {
+        p.position.x += Math.sin(Date.now()*0.001) * 0.02;
+    });
+
+    emirSprite.rotation.z += 0.01;
+    emirSprite.position.y = Math.sin(Date.now()*0.002) * 0.5;
+    renderer.render(scene, camera);
+}
+animate();
+
+let stats = {
             coding: 100,
             minecraft: '∞',
             femboy: 9001
@@ -73,7 +129,28 @@
             document.getElementById('femboy').textContent = stats.femboy;
         }
 
-        function randomEvent() {
+        // Particle System Creator
+function createParticleSystem(color) {
+    const particles = new THREE.Group();
+    const material = new THREE.MeshBasicMaterial({ color: color });
+    
+    for(let i = 0; i < 100; i++) {
+        const particle = new THREE.Mesh(
+            new THREE.SphereGeometry(0.1),
+            material
+        );
+        particle.position.set(
+            Math.random() * 10 - 5,
+            Math.random() * 10 - 5,
+            Math.random() * 10 - 5
+        );
+        particles.add(particle);
+    }
+    scene.add(particles);
+    return particles;
+}
+
+function randomEvent() {
             const events = [
                 "Emir spontaneously writes a TypeScript compiler in Excel!",
                 "A wild Turkish coffee appears! Coding speed +50%",
@@ -85,6 +162,12 @@
         }
 
         function codeChallenge() {
+    // Code storm effect
+    codeParticles.children.forEach(p => {
+        p.position.y += 0.5;
+        p.position.x += (Math.random() - 0.5) * 0.2;
+    });
+    camera.position.z = 4 + Math.random() * 2;
             stats.coding = Math.min(stats.coding + Math.random() * 10, 200);
             stats.minecraft = '∞';
             stats.femboy -= Math.random() * 100;
@@ -93,6 +176,15 @@
         }
 
         function minecraftBuild() {
+    // Block-building effect
+    minecraftParticles.children.forEach(p => {
+        p.position.set(
+            Math.round(p.position.x),
+            Math.round(p.position.y),
+            Math.round(p.position.z)
+        );
+    });
+    camera.position.x = Math.sin(Date.now() * 0.001) * 2;
             stats.minecraft = `${Math.floor(Math.random() * 100)}/10`;
             stats.femboy += Math.random() * 500;
             stats.coding -= Math.random() * 5;
@@ -101,6 +193,23 @@
         }
 
         function femboyPower() {
+    // Kawaii particle explosion
+    for(let i=0; i<50; i++) {
+        const particle = new THREE.Mesh(
+            new THREE.SphereGeometry(0.2),
+            new THREE.MeshBasicMaterial({color: 0xff69b4})
+        );
+        particle.position.copy(emirSprite.position);
+        particle.velocity = new THREE.Vector3(
+            (Math.random()-0.5)*0.2,
+            Math.random()*0.5,
+            (Math.random()-0.5)*0.2
+        );
+        scene.add(particle);
+        
+        setTimeout(() => scene.remove(particle), 1000);
+    }
+
             stats.femboy += Math.random() * 1000;
             stats.coding = 100 + Math.random() * 50;
             stats.minecraft = '♾️';
@@ -110,3 +219,8 @@
     </script>
 </body>
 </html>
+// Three.js scene now includes:
+- Rotating character sprite
+- Particle effects for each action
+- Dynamic camera movements
+- Interactive lighting system
