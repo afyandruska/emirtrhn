@@ -3,39 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emir Trahan Simulator 2024</title>
+    <title>Emir Trahan 3D Simulator 2024</title>
     <style>
         body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
             font-family: 'Comic Sans MS', cursive;
-            background: linear-gradient(45deg, #ff99cc, #99ccff);
-            text-align: center;
-            padding: 20px;
-        }
-        .character {
-            border: 5px solid #ff69b4;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px auto;
-            max-width: 600px;
-            background: white;
+            color: white;
         }
         #threeCanvas {
             position: fixed;
             top: 0;
             left: 0;
-            z-index: -1;
+            width: 100%;
+            height: 100%;
         }
-        .overlay-ui {
-            position: relative;
-            z-index: 1;
-        }
-        .stats {
-            margin: 20px;
+        .ui-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
             padding: 10px;
-            background: #f0f0f0;
+            background-color: rgba(0, 0, 0, 0.5);
             border-radius: 10px;
         }
-        button {
+        .stats {
+            margin-bottom: 20px;
+        }
+        .action-buttons button {
             background: #ff69b4;
             color: white;
             border: none;
@@ -45,112 +41,183 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
-        button:hover {
+        .action-buttons button:hover {
             transform: scale(1.1);
         }
     </style>
 </head>
 <body>
     <canvas id="threeCanvas"></canvas>
-    <div class="overlay-ui">
-        <h1>✨ Emir Trahan Simulator 2024 ✨</h1>
-        <img src="emir.png" alt="Emir Trahan">
+    
+    <div class="ui-overlay">
+        <h2>✨ Emir Trahan 3D Simulator ✨</h2>
         <div class="stats">
             <p>Coding Skill: <span id="coding">100</span>%</p>
             <p>Minecraft Expertise: <span id="minecraft">∞/10</span></p>
             <p>Femboy Energy: <span id="femboy">9001</span></p>
         </div>
-        
-        <button onclick="codeChallenge()">Solve LeetCode Hard</button>
-        <button onclick="minecraftBuild()">Build Pixel Art</button>
-        <button onclick="femboyPower()">Deploy Kawaii Attack</button>
+        <div class="action-buttons">
+            <button id="codeBtn">Solve LeetCode Hard</button>
+            <button id="minecraftBtn">Build Pixel Art</button>
+            <button id="femboyBtn">Deploy Kawaii Attack</button>
+        </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-        // Three.js Setup
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#threeCanvas'), alpha: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
+    <script type="module">
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js';
+        import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/controls/OrbitControls.js';
+        import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
 
-// Window resize handler
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// Emir Character Setup
-const emirTexture = new THREE.TextureLoader().load('emir.png');
-const emirMaterial = new THREE.SpriteMaterial({ map: emirTexture, transparent: true });
-const emirSprite = new THREE.Sprite(emirMaterial);
-emirSprite.scale.set(4, 4, 1);
-scene.add(emirSprite);
-
-// Particle Systems
-const codeParticles = createParticleSystem(0xff69b4);
-const minecraftParticles = createParticleSystem(0x99ccff);
-
-camera.position.z = 5;
-
-function animate() {
-    requestAnimationFrame(animate);
-    
-    // Dynamic light movement
-    pointLight.position.x = Math.sin(Date.now() * 0.001) * 5;
-    pointLight.position.y = Math.cos(Date.now() * 0.001) * 5;
-    
-    // Particle animations
-    codeParticles.children.forEach(p => {
-        p.position.y += 0.02;
-        if(p.position.y > 10) p.position.y = -10;
-    });
-
-    minecraftParticles.children.forEach(p => {
-        p.position.x += Math.sin(Date.now()*0.001) * 0.02;
-    });
-
-    emirSprite.rotation.z += 0.01;
-    emirSprite.position.y = Math.sin(Date.now()*0.002) * 0.5;
-    renderer.render(scene, camera);
-}
-animate();
-
-let stats = {
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a2e);
+        
+        // Camera setup
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 1.5, 5);
+        
+        // Renderer setup
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('threeCanvas'), antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        
+        // Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 3;
+        controls.maxDistance = 10;
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 10, 5);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024;
+        directionalLight.shadow.mapSize.height = 1024;
+        scene.add(directionalLight);
+        
+        // Create a ground plane
+        const groundGeometry = new THREE.PlaneGeometry(20, 20);
+        const groundMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x99ccff,
+            roughness: 0.8,
+            metalness: 0.2
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+        
+        // Create Emir character (placeholder cube until we have a model)
+        const emirGeometry = new THREE.BoxGeometry(1, 2, 1);
+        const emirMaterial = new THREE.MeshStandardMaterial({ color: 0xff69b4 });
+        const emirCharacter = new THREE.Mesh(emirGeometry, emirMaterial);
+        emirCharacter.position.y = 1;
+        emirCharacter.castShadow = true;
+        scene.add(emirCharacter);
+        
+        // Add a crown on top
+        const crownGeometry = new THREE.ConeGeometry(0.5, 0.7, 5);
+        const crownMaterial = new THREE.MeshStandardMaterial({ color: 0xffdf00 });
+        const crown = new THREE.Mesh(crownGeometry, crownMaterial);
+        crown.position.y = 1.5;
+        crown.castShadow = true;
+        emirCharacter.add(crown);
+        
+        // Create particle systems
+        function createParticleSystem(color, count = 100) {
+            const particles = new THREE.Group();
+            const geometry = new THREE.SphereGeometry(0.05, 8, 8);
+            const material = new THREE.MeshBasicMaterial({ color: color });
+            
+            for (let i = 0; i < count; i++) {
+                const particle = new THREE.Mesh(geometry, material);
+                particle.position.set(
+                    (Math.random() - 0.5) * 10,
+                    Math.random() * 5,
+                    (Math.random() - 0.5) * 10
+                );
+                particle.userData = {
+                    velocity: new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.02,
+                        Math.random() * 0.02,
+                        (Math.random() - 0.5) * 0.02
+                    ),
+                    spin: Math.random() * 0.1
+                };
+                particles.add(particle);
+            }
+            scene.add(particles);
+            return particles;
+        }
+        
+        const codeParticles = createParticleSystem(0xff69b4);
+        const minecraftParticles = createParticleSystem(0x99ccff);
+        const femboyParticles = createParticleSystem(0xffdf00, 50);
+        
+        // Create coding environment objects
+        const codeEnvironment = new THREE.Group();
+        scene.add(codeEnvironment);
+        
+        // Add some code blocks
+        for (let i = 0; i < 5; i++) {
+            const blockGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+            const blockMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x00ff00,
+                emissive: 0x003300
+            });
+            const codeBlock = new THREE.Mesh(blockGeometry, blockMaterial);
+            codeBlock.position.set(
+                (Math.random() - 0.5) * 8,
+                0.25,
+                (Math.random() - 0.5) * 8
+            );
+            codeBlock.castShadow = true;
+            codeBlock.receiveShadow = true;
+            codeEnvironment.add(codeBlock);
+        }
+        
+        // Create Minecraft environment objects
+        const minecraftEnvironment = new THREE.Group();
+        scene.add(minecraftEnvironment);
+        
+        // Add some minecraft blocks
+        for (let i = 0; i < 10; i++) {
+            const blockGeometry = new THREE.BoxGeometry(1, 1, 1);
+            const blockMaterial = new THREE.MeshStandardMaterial({ 
+                color: Math.random() > 0.5 ? 0x8B4513 : 0x228B22,
+                roughness: 0.8
+            });
+            const minecraftBlock = new THREE.Mesh(blockGeometry, blockMaterial);
+            minecraftBlock.position.set(
+                (Math.random() - 0.5) * 8,
+                0.5,
+                (Math.random() - 0.5) * 8
+            );
+            minecraftBlock.castShadow = true;
+            minecraftBlock.receiveShadow = true;
+            minecraftEnvironment.add(minecraftBlock);
+        }
+        
+        // Stats
+        let stats = {
             coding: 100,
             minecraft: '∞',
             femboy: 9001
         };
-
+        
         function updateStats() {
             document.getElementById('coding').textContent = stats.coding;
             document.getElementById('minecraft').textContent = `${stats.minecraft}/10`;
             document.getElementById('femboy').textContent = stats.femboy;
         }
-
-        // Particle System Creator
-function createParticleSystem(color) {
-    const particles = new THREE.Group();
-    const material = new THREE.MeshBasicMaterial({ color: color });
-    
-    for(let i = 0; i < 100; i++) {
-        const particle = new THREE.Mesh(
-            new THREE.SphereGeometry(0.1),
-            material
-        );
-        particle.position.set(
-            Math.random() * 10 - 5,
-            Math.random() * 10 - 5,
-            Math.random() * 10 - 5
-        );
-        particles.add(particle);
-    }
-    scene.add(particles);
-    return particles;
-}
-
-function randomEvent() {
+        
+        // Random events
+        function randomEvent() {
             const events = [
                 "Emir spontaneously writes a TypeScript compiler in Excel!",
                 "A wild Turkish coffee appears! Coding speed +50%",
@@ -160,67 +227,141 @@ function randomEvent() {
             ];
             alert(events[Math.floor(Math.random() * events.length)]);
         }
-
+        
+        // Action functions
         function codeChallenge() {
-    // Code storm effect
-    codeParticles.children.forEach(p => {
-        p.position.y += 0.5;
-        p.position.x += (Math.random() - 0.5) * 0.2;
-    });
-    camera.position.z = 4 + Math.random() * 2;
+            // Activate code particles
+            codeParticles.children.forEach(p => {
+                p.userData.velocity.y *= 2;
+            });
+            
+            // Move camera to focus on code environment
+            new THREE.Vector3(0, 3, 5);
+            
+            // Update stats
             stats.coding = Math.min(stats.coding + Math.random() * 10, 200);
             stats.minecraft = '∞';
             stats.femboy -= Math.random() * 100;
             updateStats();
             randomEvent();
+            
+            // Make Emir character do a coding animation
+            emirCharacter.rotation.y = 0;
+            const codingAnimation = setInterval(() => {
+                emirCharacter.rotation.y += 0.1;
+            }, 50);
+            setTimeout(() => clearInterval(codingAnimation), 2000);
         }
-
+        
         function minecraftBuild() {
-    // Block-building effect
-    minecraftParticles.children.forEach(p => {
-        p.position.set(
-            Math.round(p.position.x),
-            Math.round(p.position.y),
-            Math.round(p.position.z)
-        );
-    });
-    camera.position.x = Math.sin(Date.now() * 0.001) * 2;
+            // Activate minecraft particles
+            minecraftParticles.children.forEach(p => {
+                p.userData.velocity.x *= 1.5;
+                p.userData.velocity.z *= 1.5;
+            });
+            
+            // Update stats
             stats.minecraft = `${Math.floor(Math.random() * 100)}/10`;
             stats.femboy += Math.random() * 500;
             stats.coding -= Math.random() * 5;
             updateStats();
             randomEvent();
+            
+            // Make Emir character jump
+            const jumpAnimation = setInterval(() => {
+                emirCharacter.position.y = 1 + Math.sin(Date.now() * 0.005) * 0.5;
+            }, 50);
+            setTimeout(() => {
+                clearInterval(jumpAnimation);
+                emirCharacter.position.y = 1;
+            }, 2000);
         }
-
-        function femboyPower() {
-    // Kawaii particle explosion
-    for(let i=0; i<50; i++) {
-        const particle = new THREE.Mesh(
-            new THREE.SphereGeometry(0.2),
-            new THREE.MeshBasicMaterial({color: 0xff69b4})
-        );
-        particle.position.copy(emirSprite.position);
-        particle.velocity = new THREE.Vector3(
-            (Math.random()-0.5)*0.2,
-            Math.random()*0.5,
-            (Math.random()-0.5)*0.2
-        );
-        scene.add(particle);
         
-        setTimeout(() => scene.remove(particle), 1000);
-    }
-
+        function femboyPower() {
+            // Activate femboy particles
+            femboyParticles.children.forEach(p => {
+                p.userData.velocity.multiplyScalar(3);
+                p.material.color.setHex(0xff69b4);
+            });
+            
+            // Update stats
             stats.femboy += Math.random() * 1000;
             stats.coding = 100 + Math.random() * 50;
             stats.minecraft = '♾️';
             updateStats();
             alert('Nyaa~! Femboy hyperdrive activated!');
+            
+            // Make Emir character spin
+            const spinAnimation = setInterval(() => {
+                emirCharacter.rotation.y += 0.2;
+                emirCharacter.rotation.x += 0.1;
+            }, 50);
+            setTimeout(() => {
+                clearInterval(spinAnimation);
+                emirCharacter.rotation.x = 0;
+            }, 2000);
         }
+        
+        // Event listeners
+        document.getElementById('codeBtn').addEventListener('click', codeChallenge);
+        document.getElementById('minecraftBtn').addEventListener('click', minecraftBuild);
+        document.getElementById('femboyBtn').addEventListener('click', femboyPower);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update controls
+            controls.update();
+            
+            // Rotate Emir character slightly
+            emirCharacter.rotation.y += 0.005;
+            
+            // Update particles
+            codeParticles.children.forEach(p => {
+                p.position.add(p.userData.velocity);
+                p.rotation.x += p.userData.spin;
+                p.rotation.y += p.userData.spin;
+                
+                // Reset particles that go too far
+                if (p.position.y > 5) p.position.y = 0;
+                if (Math.abs(p.position.x) > 10) p.position.x *= -0.9;
+                if (Math.abs(p.position.z) > 10) p.position.z *= -0.9;
+            });
+            
+            minecraftParticles.children.forEach(p => {
+                p.position.add(p.userData.velocity);
+                
+                // Reset particles that go too far
+                if (p.position.y > 5) p.position.y = 0;
+                if (Math.abs(p.position.x) > 10) p.position.x *= -0.9;
+                if (Math.abs(p.position.z) > 10) p.position.z *= -0.9;
+            });
+            
+            femboyParticles.children.forEach(p => {
+                p.position.add(p.userData.velocity);
+                p.rotation.z += p.userData.spin * 2;
+                
+                // Reset particles that go too far
+                if (p.position.y > 5) p.position.y = 0;
+                if (Math.abs(p.position.x) > 10) p.position.x *= -0.9;
+                if (Math.abs(p.position.z) > 10) p.position.z *= -0.9;
+            });
+            
+            // Render the scene
+            renderer.render(scene, camera);
+        }
+        
+        // Start animation
+        animate();
+        updateStats();
     </script>
 </body>
 </html>
-// Three.js scene now includes:
-- Rotating character sprite
-- Particle effects for each action
-- Dynamic camera movements
-- Interactive lighting system
