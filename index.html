@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emir Trahan Simulator 2024</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background: linear-gradient(45deg, #ff99cc, #99ccff);
+            text-align: center;
+            padding: 20px;
+        }
+        .character {
+            border: 5px solid #ff69b4;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            background: white;
+        }
+        img {
+            width: 200px;
+            border-radius: 50%;
+            border: 3px solid #333;
+        }
+        .stats {
+            margin: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+        button {
+            background: #ff69b4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="character">
+        <h1>✨ Emir Trahan Simulator 2024 ✨</h1>
+        <img src="emir.png" alt="Emir Trahan">
+        <div class="stats">
+            <p>Coding Skill: <span id="coding">100</span>%</p>
+            <p>Minecraft Expertise: <span id="minecraft">∞/10</span></p>
+            <p>Femboy Energy: <span id="femboy">9001</span></p>
+        </div>
+        
+        <button onclick="codeChallenge()">Solve LeetCode Hard</button>
+        <button onclick="minecraftBuild()">Build Pixel Art</button>
+        <button onclick="femboyPower()">Deploy Kawaii Attack</button>
+    </div>
+
+    <script>
+        let stats = {
+            coding: 100,
+            minecraft: '∞',
+            femboy: 9001
+        };
+
+        function updateStats() {
+            document.getElementById('coding').textContent = stats.coding;
+            document.getElementById('minecraft').textContent = `${stats.minecraft}/10`;
+            document.getElementById('femboy').textContent = stats.femboy;
+        }
+
+        function randomEvent() {
+            const events = [
+                "Emir spontaneously writes a TypeScript compiler in Excel!",
+                "A wild Turkish coffee appears! Coding speed +50%",
+                "Minecraft sheep demand better building permits!",
+                "Femboy energy converted to React components!",
+                "Error 418: I'm a teapot (Turkish edition)"
+            ];
+            alert(events[Math.floor(Math.random() * events.length)]);
+        }
+
+        function codeChallenge() {
+            stats.coding = Math.min(stats.coding + Math.random() * 10, 200);
+            stats.minecraft = '∞';
+            stats.femboy -= Math.random() * 100;
+            updateStats();
+            randomEvent();
+        }
+
+        function minecraftBuild() {
+            stats.minecraft = `${Math.floor(Math.random() * 100)}/10`;
+            stats.femboy += Math.random() * 500;
+            stats.coding -= Math.random() * 5;
+            updateStats();
+            randomEvent();
+        }
+
+        function femboyPower() {
+            stats.femboy += Math.random() * 1000;
+            stats.coding = 100 + Math.random() * 50;
+            stats.minecraft = '♾️';
+            updateStats();
+            alert('Nyaa~! Femboy hyperdrive activated!');
+        }
+    </script>
+</body>
+</html>
